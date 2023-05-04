@@ -4,7 +4,7 @@
 
 num_epochs = 5
 
-num_classes = 4
+num_classes = 8
 
 learning_rate = 0.001
 
