@@ -8,9 +8,15 @@ class EmotionDetectionModel(tf.keras.Model):
         super().__init__(**kwargs)
         self.decoder = decoder
 
+        self.loss_list = []
+        self.accuracy_list = []
+
     @tf.function
     def call(self, encoded_text):
         return self.decoder(encoded_text)  
+    
+    def optimizer(self, learning_rate):
+        return tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
     def compile(self, optimizer, loss, metrics):
         '''
@@ -35,7 +41,7 @@ class EmotionDetectionModel(tf.keras.Model):
             else:
                 other_emotions += i
         loss = other_emotions + perplexity - target_emotion
-        return 
+        return loss
 
     def accuracy(self, logits, labels):
         """Computes accuracy and returns a float representing the average accuracy"""
@@ -49,4 +55,3 @@ class EmotionDetectionModel(tf.keras.Model):
 
         avg = num_correct / len(labels)
         return avg
-
