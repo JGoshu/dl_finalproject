@@ -1,5 +1,10 @@
 import tensorflow as tf
 import hyperparameters as hp
+import argparse
+from preprocessing import get_data
+from preprocessing import get_test_data
+from model import model
+from plot import plot
 
 def train(model, train_inputs, train_labels):
     optimizer = tf.keras.optimizers.Adam(learning_rate=hp.learning_rate)
@@ -33,3 +38,27 @@ def test(model, test_inputs, test_labels):
         avg_list.append(model.accuracy(forward_pass, labels))
 
     return sum(avg_list)/len(avg_list)
+
+# Main for running the training and testing along with specifying arguments for the user
+def main():
+    parser = argparse.ArgumentParser(
+    description="Let's analyze some sentiments!",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--epochs",required=False)
+    parser.add_argument("--learning_rate",required=False)
+    args = parser.parse_args()
+    if args.epochs: 
+        hp.num_epochs = int(args.epochs)
+    if args.learning_rate: 
+        hp.learning_rate = float(args.learning_rate)
+    inputs, labels = get_data()
+    test_inputs, test_labels = get_test_data()
+    for i in range(hp.num_epochs):
+        print(f"EPOCH: {i}/{hp.num_epochs}")
+        train(model, inputs, labels)
+        
+
+    plot(model.loss_list, "LOSS", f"{args.model}_LOSS")
+    plot(model.accuracy_list, "ACCURACY", f"{args.model}_ACCURACY")
+    print(f"FINAL TESTING SCORE: {test(model, test_inputs, test_labels)}")
+main()
