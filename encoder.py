@@ -20,7 +20,7 @@ class TransformerEncoder(tf.keras.Model):
         self.hidden_size = hidden_size
         self.window_size = window_size
         # Load the embedding matrix
-        self.embedding_matrix = self.load_embedding('glove.42B.300d.txt')
+        self.embedding_matrix = self.load_embedding()
 
         # Define the Keras embedding layer
         self.embedding_layer = tf.keras.layers.Embedding(
@@ -32,13 +32,13 @@ class TransformerEncoder(tf.keras.Model):
         # Define english embedding layer:
         self.encoding = PositionalEncoding(self.vocab_size, self.hidden_size, self.window_size)
         # Define decoder layer that handles language context:     
-        self.encoder = TransformerBlock(self.hidden_size, False)
+        self.encoder = TransformerBlock(self.hidden_size)
 
         # Define classification layer (LOGIT OUTPUT)
         self.classifier = tf.keras.layers.Dense(vocab_size, activation="leaky_relu")
-    def load_embedding(embedding_file):
+    def load_embedding(self):
         # Load the embedding file
-        with open(embedding_file, 'r', encoding='utf-8') as f:
+        with open('data/fake.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         # Extract the embedding matrix
@@ -57,7 +57,7 @@ class TransformerEncoder(tf.keras.Model):
         # 2) Pass the captions through your positional encoding layer
         # 3) Pass the english embeddings and the image sequences to the decoder
         # 4) Apply dense layer(s) to the decoder out to generate logits
-
+        print("post: ", post)
         encoded_post = self.encoding(post)
         decoder_output = self.encoder(encoded_post)
         probs = self.classifier(decoder_output)

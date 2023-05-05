@@ -16,4 +16,4 @@ window_size = 5
 
 embed_size = 300
 
-vocab_size = 1917494
+vocab_size = 490

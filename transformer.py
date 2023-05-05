@@ -73,15 +73,42 @@ class PositionalEncoding(tf.keras.layers.Layer):
         ## TODO: Implement Component
 
         ## Embed labels into an optimizable embedding space
-        self.embedding = tf.keras.layers.Embedding(vocab_size, self.embed_size, trainable=True, input_length=window_size)
 
         ## Implement sinosoidal positional encoding: offset by varying sinosoidal frequencies. 
         ## HINT: May want to use the function above...
         self.pos_encoding = positional_encoding(2048, embed_size)
+        self.embedding_matrix = self.load_embedding()
 
+        # Define the Keras embedding layer
+        self.embedding = tf.keras.layers.Embedding(
+            input_dim=self.embedding_matrix.shape[0],
+            output_dim=self.embedding_matrix.shape[1],
+            weights=[self.embedding_matrix],
+            trainable=False
+        )
+
+    def load_embedding(self):
+        # Load the embedding file
+        with open('data/fake.txt', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        # Extract the embedding matrix
+        embedding_matrix = np.zeros((len(lines), 300))
+        for i, line in enumerate(lines):
+            parts = line.strip().split(' ')
+            embedding_matrix[i] = np.array(parts[1:], dtype=np.float32)
+
+        # Return the embedding matrix
+        return embedding_matrix
     def call(self, x):
         ## TODO: Get embeddings and and scale them by sqrt of embedding size, and add positional encoding.
         length = tf.shape(x)[1]
+
+        print("X: ", x)
+        print("X[0]: ", x[0])
+        print("X[0][0]: ", x[0][0])
+        print("X3: ", x[0][0][0])
+        print("embedding: ", self.embedding(x[0][0][0]))
         x = self.embedding(x)
         x *= tf.math.sqrt(tf.cast(self.embed_size, tf.float32))
         x = x + self.pos_encoding[tf.newaxis, :length, :]

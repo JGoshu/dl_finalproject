@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from transformer import *
+from encoder import TransformerEncoder
 # except Exception as e: print(f"TransformerDecoder Might Not Work, as components failed to import:\n{e}")
 
 ########################################################################################
@@ -20,7 +21,7 @@ class TransformerDecoder(tf.keras.Model):
         self.hidden_size = hidden_size
         self.window_size = window_size
         self.embed_size = embed_size
-        
+        self.encoding = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size)
         # Load the embedding matrix
         self.embedding_matrix = self.load_embedding()
 
@@ -43,9 +44,9 @@ class TransformerDecoder(tf.keras.Model):
                                             tf.keras.layers.ReLU()])
         
         self.softmax = tf.keras.layers.Softmax()
-    def load_embedding():
+    def load_embedding(self):
     # Load the embedding file
-        with open('data/glove.42B.300d.txt', 'r', encoding='utf-8') as f:
+        with open('data/fake.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         # Extract the embedding matrix
@@ -56,8 +57,13 @@ class TransformerDecoder(tf.keras.Model):
 
         # Return the embedding matrix
         return embedding_matrix
+    
+    def mask(self, length):
+        mask = np.ones((length, length))
+        mask = np.tril(mask)
+        return mask
 
-    def call(self, post, mask):
+    def call(self, post):
         # TODO:
         # 1) Embed the encoded images into a vector (HINT IN NOTEBOOK)
 
@@ -65,6 +71,8 @@ class TransformerDecoder(tf.keras.Model):
         # 3) Pass the english embeddings and the image sequences to the decoder
         # 4) Apply dense layer(s) to the decoder out to generate logits
 
+        mask = self.mask(7)
+        
         encoded_post = self.encoding(post)
 
         masked_attention = self.self_atten(encoded_post, attention_mask=mask)

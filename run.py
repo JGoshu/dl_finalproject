@@ -19,6 +19,7 @@ def train(model, train_inputs, train_labels):
         labels = shuffled_labels[i: i + hp.batch_size]
 
         with tf.GradientTape() as tape:
+            print("inputs: /line22 run.py: ", inputs)
             forward_pass = model(inputs) 
             loss = model.sentiment_loss(labels, forward_pass)
         
@@ -45,7 +46,8 @@ def test(model, test_inputs, test_labels):
 
 # Main for running the training and testing along with specifying arguments for the user
 def main():
-    model = EmotionDetectionModel(TransformerDecoder(vocab_size=hp.vocab_size, hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size))
+    
+    model = EmotionDetectionModel(vocab_size=hp.vocab_size, hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size)
     parser = argparse.ArgumentParser(
     description="Let's analyze some sentiments!",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)

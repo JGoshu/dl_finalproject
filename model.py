@@ -1,18 +1,20 @@
 import numpy as np
 import tensorflow as tf
+from decoder import TransformerDecoder
 
 # Model call function 
 
 class EmotionDetectionModel(tf.keras.Model):
-    def __init__(self, decoder, hidden_size, window_size, embed_size, **kwargs):
+    def __init__(self, vocab_size, hidden_size, window_size, embed_size, **kwargs):
         super().__init__(**kwargs)
-        self.decoder = decoder(hidden_size, window_size, embed_size)
+        self.decoder = TransformerDecoder(vocab_size, hidden_size, window_size, embed_size)
 
         self.loss_list = []
         self.accuracy_list = []
         self.final_loss = []
 
     def call(self, encoded_text):
+        print("encoded_text: ", encoded_text)
         return self.decoder(encoded_text)  
 
     def compile(self, optimizer, loss, metrics):
