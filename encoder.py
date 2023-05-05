@@ -9,16 +9,26 @@ from transformer import *
 
 ########################################################################################
 # taking in text
+
+# Define the function to load embeddings
+
+# Use the embedding layer in your Keras model
 class TransformerEncoder(tf.keras.Model):
     def __init__(self, vocab_size, hidden_size, window_size, **kwargs):
         super().__init__(**kwargs)
         self.vocab_size  = vocab_size
         self.hidden_size = hidden_size
         self.window_size = window_size
-        self.text_embedding = tf.keras.Sequential([
-            tf.keras.layers.Dense(self.hidden_size*2, activation="leaky_relu"),
-            tf.keras.layers.Dense(self.hidden_size, activation="leaky_relu"),
-        ])
+        # Load the embedding matrix
+        self.embedding_matrix = self.load_embedding('embedding_file.txt')
+
+        # Define the Keras embedding layer
+        self.embedding_layer = tf.keras.layers.Embedding(
+            input_dim=self.embedding_matrix.shape[0],
+            output_dim=self.embedding_matrix.shape[1],
+            weights=[self.embedding_matrix],
+            trainable=False
+        )
         # Define english embedding layer:
         self.encoding = PositionalEncoding(self.vocab_size, self.hidden_size, self.window_size)
         # Define decoder layer that handles language context:     
@@ -26,6 +36,19 @@ class TransformerEncoder(tf.keras.Model):
 
         # Define classification layer (LOGIT OUTPUT)
         self.classifier = tf.keras.layers.Dense(vocab_size, activation="leaky_relu")
+    def load_embedding(embedding_file):
+        # Load the embedding file
+        with open(embedding_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        # Extract the embedding matrix
+        embedding_matrix = np.zeros((len(lines), 300))
+        for i, line in enumerate(lines):
+            parts = line.strip().split(' ')
+            embedding_matrix[i] = np.array(parts[1:], dtype=np.float32)
+
+        # Return the embedding matrix
+        return embedding_matrix
 
     def call(self, post):
         # TODO:

@@ -8,7 +8,9 @@ from transformer import *
     
 
 ########################################################################################
+# Define the function to load embeddings
 
+# Use the embedding layer in your Keras model
 class TransformerDecoder(tf.keras.Model):
 
     def __init__(self, vocab_size, hidden_size, window_size, embed_size, **kwargs):
@@ -18,6 +20,17 @@ class TransformerDecoder(tf.keras.Model):
         self.hidden_size = hidden_size
         self.window_size = window_size
         self.embed_size = embed_size
+        
+        # Load the embedding matrix
+        self.embedding_matrix = self.load_embedding('embedding_file.txt')
+
+        # Define the Keras embedding layer
+        self.embedding_layer = tf.keras.layers.Embedding(
+            input_dim=self.embedding_matrix.shape[0],
+            output_dim=self.embedding_matrix.shape[1],
+            weights=[self.embedding_matrix],
+            trainable=False
+        )
 
         self.self_atten = tf.keras.layers.MultiHeadAttention(num_heads=4, key_dim=embed_size)
         self.layer_norm = tf.keras.layers.LayerNormalization()
@@ -30,6 +43,19 @@ class TransformerDecoder(tf.keras.Model):
                                             tf.keras.layers.ReLU()])
         
         self.softmax = tf.keras.layers.Softmax()
+    def load_embedding(embedding_file):
+    # Load the embedding file
+        with open(embedding_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        # Extract the embedding matrix
+        embedding_matrix = np.zeros((len(lines), 300))
+        for i, line in enumerate(lines):
+            parts = line.strip().split(' ')
+            embedding_matrix[i] = np.array(parts[1:], dtype=np.float32)
+
+        # Return the embedding matrix
+        return embedding_matrix
 
     def call(self, post, mask):
         # TODO:
