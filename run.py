@@ -3,9 +3,8 @@ import hyperparameters as hp
 import numpy as np
 import argparse
 from preprocessing import get_data
-from preprocessing import get_test_data
-from model import model
-from plot import plot, plot_all_sentiments
+from model import EmotionDetectionModel
+# from plot import plot, plot_all_sentiments
 
 def train(model, train_inputs, train_labels):
     indices = tf.range(start=0, limit=tf.shape(train_inputs)[0], dtype=tf.int32)
@@ -19,8 +18,8 @@ def train(model, train_inputs, train_labels):
         labels = shuffled_labels[i: i + hp.batch_size]
 
         with tf.GradientTape() as tape:
-            forward_pass = model.call(inputs) 
-            loss = model.loss_function(labels, forward_pass)
+            forward_pass = model(inputs) 
+            loss = model.sentiment_loss(labels, forward_pass)
         
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer(hp.learning_rate).apply_gradients(zip(gradients, model.trainable_variables))
@@ -62,10 +61,10 @@ def main():
 
     for i in range(hp.num_epochs):
         print(f"EPOCH: {i}/{hp.num_epochs}")
-        train(model, train_posts, train_emotions)
+        train(EmotionDetectionModel, train_posts, train_emotions)
         
     # plot_all_sentiments(model.loss_list, "LOSS", f"{args.model}_LOSS")
     # plot(model.accuracy_list, "ACCURACY", f"{args.model}_ACCURACY")
-    print(f"FINAL TESTING SCORE: {test(model, test_posts, test_emotions)}")
+    print(f"FINAL TESTING SCORE: {test(EmotionDetectionModel, test_posts, test_emotions)}")
     
 main()
