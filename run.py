@@ -4,6 +4,7 @@ import numpy as np
 import argparse
 from preprocessing import get_data
 from model import EmotionDetectionModel
+from decoder import TransformerDecoder
 # from plot import plot, plot_all_sentiments
 
 def train(model, train_inputs, train_labels):
@@ -44,6 +45,7 @@ def test(model, test_inputs, test_labels):
 
 # Main for running the training and testing along with specifying arguments for the user
 def main():
+    model = EmotionDetectionModel(TransformerDecoder(vocab_size=hp.vocab_size, hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size))
     parser = argparse.ArgumentParser(
     description="Let's analyze some sentiments!",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -61,10 +63,10 @@ def main():
 
     for i in range(hp.num_epochs):
         print(f"EPOCH: {i}/{hp.num_epochs}")
-        train(EmotionDetectionModel, train_posts, train_emotions)
+        train(model, train_posts, train_emotions)
         
     # plot_all_sentiments(model.loss_list, "LOSS", f"{args.model}_LOSS")
     # plot(model.accuracy_list, "ACCURACY", f"{args.model}_ACCURACY")
-    print(f"FINAL TESTING SCORE: {test(EmotionDetectionModel, test_posts, test_emotions)}")
+    print(f"FINAL TESTING SCORE: {test(model, test_posts, test_emotions)}")
     
 main()

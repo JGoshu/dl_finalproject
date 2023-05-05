@@ -9,3 +9,11 @@ num_classes = 8
 learning_rate = 0.001
 
 batch_size = 10
+
+hidden_size = 512
+
+window_size = 5
+
+embed_size = 300
+
+vocab_size = 1917494

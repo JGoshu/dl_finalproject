@@ -22,7 +22,7 @@ class TransformerDecoder(tf.keras.Model):
         self.embed_size = embed_size
         
         # Load the embedding matrix
-        self.embedding_matrix = self.load_embedding('glove.42B.300d.txt')
+        self.embedding_matrix = self.load_embedding()
 
         # Define the Keras embedding layer
         self.embedding_layer = tf.keras.layers.Embedding(
@@ -43,9 +43,9 @@ class TransformerDecoder(tf.keras.Model):
                                             tf.keras.layers.ReLU()])
         
         self.softmax = tf.keras.layers.Softmax()
-    def load_embedding(embedding_file):
+    def load_embedding():
     # Load the embedding file
-        with open(embedding_file, 'r', encoding='utf-8') as f:
+        with open('data/glove.42B.300d.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         # Extract the embedding matrix
