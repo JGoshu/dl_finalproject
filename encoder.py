@@ -8,7 +8,7 @@ from transformer import *
     
 
 ########################################################################################
-
+# taking in text
 class TransformerEncoder(tf.keras.Model):
     def __init__(self, vocab_size, hidden_size, window_size, **kwargs):
         super().__init__(**kwargs)

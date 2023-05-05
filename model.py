@@ -10,6 +10,7 @@ class EmotionDetectionModel(tf.keras.Model):
 
         self.loss_list = []
         self.accuracy_list = []
+        self.final_loss = []
 
     @tf.function
     def call(self, encoded_text):

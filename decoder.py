@@ -11,25 +11,27 @@ from transformer import *
 
 class TransformerDecoder(tf.keras.Model):
 
-    def __init__(self, vocab_size, hidden_size, window_size, **kwargs):
+    def __init__(self, vocab_size, hidden_size, window_size, embed_size, **kwargs):
 
         super().__init__(**kwargs)
         self.vocab_size  = vocab_size
         self.hidden_size = hidden_size
         self.window_size = window_size
-        self.text_embedding = tf.keras.Sequential([
-            tf.keras.layers.Dense(self.hidden_size*2, activation="leaky_relu"),
-            tf.keras.layers.Dense(self.hidden_size, activation="leaky_relu"),
-        ])
-        # Define english embedding layer:
-        self.encoding = PositionalEncoding(self.vocab_size, self.hidden_size, self.window_size)
-        # Define decoder layer that handles language context:     
-        self.decoder = TransformerBlock(self.hidden_size, False)
+        self.embed_size = embed_size
 
-        # Define classification layer (LOGIT OUTPUT)
-        self.classifier = tf.keras.layers.Dense(vocab_size, activation="leaky_relu")
+        self.self_atten = tf.keras.layers.MultiHeadAttention(num_heads=4, key_dim=embed_size)
+        self.layer_norm = tf.keras.layers.LayerNormalization()
+        self.feed_forward = tf.keras.Sequential([tf.keras.layers.Flatten(),
+                                            tf.keras.layers.Dense(512),
+                                            tf.keras.layers.ReLU(),
+                                            tf.keras.layers.Dense(512),
+                                            tf.keras.layers.ReLU(),
+                                            tf.keras.layers.Dense(8),
+                                            tf.keras.layers.ReLU()])
+        
+        self.softmax = tf.keras.layers.Softmax()
 
-    def call(self, post):
+    def call(self, post, mask):
         # TODO:
         # 1) Embed the encoded images into a vector (HINT IN NOTEBOOK)
 
@@ -38,8 +40,15 @@ class TransformerDecoder(tf.keras.Model):
         # 4) Apply dense layer(s) to the decoder out to generate logits
 
         encoded_post = self.encoding(post)
-        decoder_output = self.decoder(encoded_post)
-        probs = self.classifier(decoder_output)
+
+        masked_attention = self.self_atten(encoded_post, attention_mask=mask)
+        norm1 = self.layer_norm(encoded_post + masked_attention)
+        attention = self.self_atten(norm1)
+        norm2 = self.layer_norm(norm1 + attention)
+        ff_layer = self.feed_forward(norm2)
+        norm3 = self.layer_norm(ff_layer)
+        logits = self.layer_norm(norm3)
+        probs = self.softmax(logits)
 
         return probs
     
