@@ -57,15 +57,15 @@ def main():
     if args.learning_rate: 
         hp.learning_rate = tf.cast(args.learning_rate, tf.float32)
 
-    inputs, labels = get_data()
-    test_inputs, test_labels = get_test_data()
+    train_posts, val_posts, test_posts, train_emotions, val_emotions, test_emotions = get_data()
+    # test_inputs, test_labels = get_test_data()
 
     for i in range(hp.num_epochs):
         print(f"EPOCH: {i}/{hp.num_epochs}")
-        train(model, inputs, labels)
+        train(model, train_posts, train_emotions)
         
-    plot_all_sentiments(model.loss_list, "LOSS", f"{args.model}_LOSS")
-    plot(model.accuracy_list, "ACCURACY", f"{args.model}_ACCURACY")
-    print(f"FINAL TESTING SCORE: {test(model, test_inputs, test_labels)}")
+    # plot_all_sentiments(model.loss_list, "LOSS", f"{args.model}_LOSS")
+    # plot(model.accuracy_list, "ACCURACY", f"{args.model}_ACCURACY")
+    print(f"FINAL TESTING SCORE: {test(model, test_posts, test_emotions)}")
     
 main()

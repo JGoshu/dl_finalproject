@@ -1,6 +1,6 @@
 import os
 
-import keras_nlp
+# import keras_nlp
 import tensorflow as tf
 from tensorflow import keras
 import json
@@ -19,7 +19,7 @@ tokenizer = nltk.RegexpTokenizer(r'\w+')
 stop_words = set(stopwords.words('english'))
 stemmer = PorterStemmer()
 
-def preprocess(text):
+def preprocess_post(text):
     # tokenize the text
     tokens = tokenizer.tokenize(text)
     
@@ -57,8 +57,8 @@ def get_data():
         train_posts = []
         train_emotions = np.zeros((len(train_data), 7))
         for index, i in enumerate(train_data):
-            train_posts.append(train_data[i]["Reddit Post"])
-
+            train_posts.append(preprocess_post((train_data[i]["Reddit Post"])))
+            
             emotion_per_post = []
             keys = list(train_data[i]["Annotations"].keys())
             for j in range(len(keys)):
@@ -76,7 +76,7 @@ def get_data():
         val_posts = []
         val_emotions = np.zeros((len(val_data), 7))
         for index, i in enumerate(val_data):
-            val_posts.append(val_data[i]["Reddit Post"])
+            val_posts.append(preprocess_post(val_data[i]["Reddit Post"]))
 
             emotion_per_post = []
             keys = list(val_data[i]["Annotations"].keys())
@@ -95,7 +95,7 @@ def get_data():
         test_posts = []
         test_emotions = np.zeros((len(test_data), 7))
         for index, i in enumerate(test_data):
-            test_posts.append(test_data[i]["Reddit Post"])
+            test_posts.append(preprocess_post(test_data[i]["Reddit Post"]))
 
             emotion_per_post = []
             keys = list(test_data[i]["Annotations"].keys())

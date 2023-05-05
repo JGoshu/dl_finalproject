@@ -20,7 +20,7 @@ class TransformerEncoder(tf.keras.Model):
         self.hidden_size = hidden_size
         self.window_size = window_size
         # Load the embedding matrix
-        self.embedding_matrix = self.load_embedding('embedding_file.txt')
+        self.embedding_matrix = self.load_embedding('glove.42B.300d.txt')
 
         # Define the Keras embedding layer
         self.embedding_layer = tf.keras.layers.Embedding(
