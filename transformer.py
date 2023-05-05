@@ -102,13 +102,9 @@ class PositionalEncoding(tf.keras.layers.Layer):
         return embedding_matrix
     def call(self, x):
         ## TODO: Get embeddings and and scale them by sqrt of embedding size, and add positional encoding.
-        length = tf.shape(x)[1]
+        length = tf.shape(x)[0]
 
-        print("X: ", x)
-        print("X[0]: ", x[0])
-        print("X[0][0]: ", x[0][0])
-        print("X3: ", x[0][0][0])
-        print("embedding: ", self.embedding(x[0][0][0]))
+        print("X: ",  x)
         x = self.embedding(x)
         x *= tf.math.sqrt(tf.cast(self.embed_size, tf.float32))
         x = x + self.pos_encoding[tf.newaxis, :length, :]

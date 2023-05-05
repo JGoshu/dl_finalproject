@@ -12,7 +12,7 @@ batch_size = 10
 
 hidden_size = 512
 
-window_size = 5
+window_size = 300
 
 embed_size = 300
 

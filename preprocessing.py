@@ -1,4 +1,5 @@
 import os
+import hyperparameters as hp
 
 # import keras_nlp
 import tensorflow as tf
@@ -18,7 +19,22 @@ nltk.download('stopwords')
 tokenizer = nltk.RegexpTokenizer(r'\w+')
 stop_words = set(stopwords.words('english'))
 stemmer = PorterStemmer()
+def load_embedding():
+        data_dict = {}
+        # Load the embedding file
+        with open('data/fake.txt', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
 
+        # Extract the embedding matrix
+        embedding_matrix = np.zeros((len(lines), 300))
+        for i, line in enumerate(lines):
+            parts = line.strip().split(' ')
+            embedding_matrix[i] = np.array(parts[1:], dtype=np.float32)
+            data_dict[parts[0]] = i
+
+        # Return the embedding matrix
+        data_dict['<pad>'] = -1
+        return embedding_matrix, data_dict
 def preprocess_post(text):
     # tokenize the text
     tokens = tokenizer.tokenize(text)
@@ -30,7 +46,6 @@ def preprocess_post(text):
     tokens = [token for token in tokens if token not in stop_words]
     
     # apply stemming
-    tokens = [stemmer.stem(token) for token in tokens]
     
     # join the tokens back into a string
     processed_text = ' '.join(tokens)
@@ -109,15 +124,60 @@ def get_data():
             emotion_vector = np.array([1 if x in emotion_set else 0 for x in labels_idx.keys()])
             test_emotions[index] = emotion_vector
         
-
+    
     train_posts = np.reshape(np.array(train_posts), (-1, 1))
     val_posts = np.reshape(np.array(val_posts), (-1, 1))
     test_posts = np.reshape(np.array(test_posts), (-1, 1))
+
+    print(train_posts[0])
     
     train_emotions = np.array(train_emotions)
     val_emotions = np.array(val_emotions)
     test_emotions = np.array(test_emotions)
+    embedding, word2idx = load_embedding()
+    vocab_size = hp.vocab_size
+    train_tokenized = np.zeros((train_posts.shape[0], hp.window_size + 1))
+    val_tokenized = np.zeros((train_posts.shape[0], hp.window_size + 1))
+    test_tokenized = np.zeros((train_posts.shape[0], hp.window_size + 1))
+    for index, post in enumerate(train_posts):
+        words = post[0].split()
+        words += (hp.window_size + 1 - len(words)) * ['<pad>']
+        new_words = []
+        for i, word in enumerate(words):
+            if word in word2idx:
+                new_words.append(word2idx[word])
+            else:
+                word2idx[word] = vocab_size
+                new_words.append(vocab_size)
+                vocab_size += 1
+        train_tokenized[index] = new_words
 
-    return train_posts, val_posts, test_posts, train_emotions, val_emotions, test_emotions
+    for index, post in enumerate(val_posts):
+        words = post[0].split()
+        words += (hp.window_size + 1 - len(words)) * ['<pad>']
+        new_words = []
+        for i, word in enumerate(words):
+            if word in word2idx:
+                new_words.append(word2idx[word])
+            else:
+                word2idx[word] = vocab_size
+                new_words.append(vocab_size)
+                vocab_size += 1
+        val_tokenized[index] = new_words
+
+    for index, post in enumerate(test_posts):
+        words = post[0].split()
+        words += (hp.window_size + 1 - len(words)) * ['<pad>']
+        new_words = []
+        for i, word in enumerate(words):
+            if word in word2idx:
+                new_words.append(word2idx[word])
+            else:
+                word2idx[word] = vocab_size
+                new_words.append(vocab_size)
+                vocab_size += 1   ####### TODO: REMOVE LATER OR TRY TRAINING EMBEDDING ########
+        test_tokenized[index] = new_words
+
+    return train_tokenized, val_tokenized, test_tokenized, train_emotions, val_emotions, test_emotions, embedding, word2idx
 
 get_data()
