@@ -22,7 +22,7 @@ class TransformerEncoder(tf.keras.Model):
         # Load the embedding matrix
         #TODO
         self.embedding_matrix = embedding
-
+        
         # Define the Keras embedding layer
         self.embedding_layer = tf.keras.layers.Embedding(
             input_dim=self.embedding_matrix.shape[0],
@@ -31,7 +31,7 @@ class TransformerEncoder(tf.keras.Model):
             trainable=False
         )
         # Define english embedding layer:
-        self.encoding = PositionalEncoding(self.vocab_size, self.hidden_size, self.window_size)
+       
         # Define decoder layer that handles language context:     
         self.encoder = TransformerBlock(self.hidden_size)
 
@@ -46,9 +46,9 @@ class TransformerEncoder(tf.keras.Model):
         # 3) Pass the english embeddings and the image sequences to the decoder
         # 4) Apply dense layer(s) to the decoder out to generate logits
         print("post: ", post)
-        encoded_post = self.encoding(post)
-        decoder_output = self.encoder(encoded_post)
-        probs = self.classifier(decoder_output)
+        embedding = self.embedding_layer(post)
+        encoded = self.encoder(embedding)
+        probs = self.classifier(encoded)
 
         return probs
     

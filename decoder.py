@@ -63,7 +63,7 @@ class TransformerDecoder(tf.keras.Model):
 
 
 
-    def call(self, post):
+    def call(self, post, context_sequence):
         # TODO:
         # 1) Embed the encoded images into a vector (HINT IN NOTEBOOK)
 
@@ -84,7 +84,7 @@ class TransformerDecoder(tf.keras.Model):
         norm1 = self.layer_norm(encoded_post + attention1)
         attention2 = self.self_context_atten(context_sequence, context_sequence, norm1)
         norm2 = self.layer_norm(norm1 + attention2)
-        ff1 = self.ff_layer(norm2)
+        ff1 = self.feed_forward(norm2)
         norm3 = self.layer_norm(norm2 + ff1)
         norm4 = self.layer_norm(norm3)
         return norm4

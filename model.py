@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from encoder import TransformerEncoder
 from decoder import TransformerDecoder
 
 # Model call function 
@@ -8,13 +9,15 @@ class EmotionDetectionModel(tf.keras.Model):
     def __init__(self, vocab_size, hidden_size, window_size, embed_size, embedding, word2idx, **kwargs):
         super().__init__(**kwargs)
         self.decoder = TransformerDecoder(vocab_size, hidden_size, window_size, embed_size, embedding)
+        self.encoder = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size, embedding=embedding)
         self.word2idx= word2idx
         self.loss_list = []
         self.accuracy_list = []
         self.final_loss = []
 
-    def call(self, encoded_text):
-        print("encoded_text: ", encoded_text)
+    def call(self, inputs):
+        print("encoded_text: ", inputs)
+        encoded_text = self.encoder(inputs)
         return self.decoder(encoded_text)  
 
     def compile(self, optimizer, loss, metrics):
@@ -30,11 +33,10 @@ class EmotionDetectionModel(tf.keras.Model):
         return tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
     # Model loss function 
-    def sentiment_loss(self, labels, predictions, mask):
+    def sentiment_loss(self, labels, predictions):
         """Loss function for sentiment analysis"""
-        masked_labs = tf.boolean_mask(labels, mask)
-        masked_prbs = tf.boolean_mask(predictions, mask)
-        return tf.keras.losses.sparse_categorical_crossentropy(masked_labs, masked_prbs)
+        
+        return tf.keras.losses.sparse_categorical_crossentropy(labels, predictions)
 
     def summary_loss(self, labels, predictions, threshold, perplexity):
         """Loss function"""
@@ -48,7 +50,7 @@ class EmotionDetectionModel(tf.keras.Model):
         loss = other_emotions + perplexity - target_emotion
         return loss
 
-    def accuracy(self, logits, labels, mask):
+    def accuracy(self, logits, labels):
         """Computes accuracy and returns a float representing the average accuracy"""
         
         # correct_predictions = np.argmax(logits, axis=1)
@@ -62,5 +64,5 @@ class EmotionDetectionModel(tf.keras.Model):
         # return avg
 
         correct_classes = tf.argmax(logits, axis=-1) == labels
-        acc = tf.reduce_mean(tf.boolean_mask(tf.cast(correct_classes, tf.float32), mask))
+        acc = tf.reduce_mean(tf.cast(correct_classes, tf.float32))
         return acc

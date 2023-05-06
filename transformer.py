@@ -18,7 +18,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.layer_norm = tf.keras.layers.LayerNormalization()
 
     @tf.function
-    def call(self, inputs, context_sequence):
+    def call(self, inputs, context_sequence=None, is_decoder=False):
         """
         This functions calls a transformer block.
 
@@ -41,11 +41,15 @@ class TransformerBlock(tf.keras.layers.Layer):
         in_attention = self.self_atten(inputs, inputs, inputs)
         in_attention = in_attention + inputs
         in_attention_norm = self.layer_norm(in_attention)
-        context_attention = self.self_context_atten(context_sequence, context_sequence, in_attention_norm)
-        context_attention = context_attention + in_attention_norm
-        context_attention_norm = self.layer_norm(context_attention)
-        ff_out = self.ff_layer(context_attention_norm)
-        ff_out = ff_out + context_attention_norm
+        if is_decoder:
+            in_attention_norm = self.self_context_atten(context_sequence, context_sequence, in_attention_norm)
+            context_attention = context_attention + in_attention_norm
+            context_attention_norm = self.layer_norm(context_attention)
+            ff_out = self.ff_layer(context_attention_norm)
+            ff_out = ff_out + context_attention_norm
+        else:
+            ff_out = self.ff_layer(in_attention_norm)
+            ff_out = ff_out + in_attention_norm
         ff_out_norm = self.layer_norm(ff_out)
         return ff_out_norm
 
