@@ -22,7 +22,7 @@ stemmer = PorterStemmer()
 def load_embedding():
         data_dict = {}
         # Load the embedding file
-        with open('data/fake.txt', 'r', encoding='utf-8') as f:
+        with open('data/glove.6B.300d.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         # Extract the embedding matrix
