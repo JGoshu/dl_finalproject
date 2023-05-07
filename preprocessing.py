@@ -45,8 +45,6 @@ def preprocess_post(text):
     # remove stop words
     tokens = [token for token in tokens if token not in stop_words]
     
-    # apply stemming
-    
     # join the tokens back into a string
     processed_text = ' '.join(tokens)
     
