@@ -7,9 +7,10 @@ from decoder import TransformerDecoder
 
 class EmotionDetectionModel(tf.keras.Model):
     def __init__(self, vocab_size, hidden_size, window_size, embed_size, embedding, word2idx, **kwargs):
-        super().__init__(**kwargs)
+        super( EmotionDetectionModel, self).__init__(**kwargs)
         self.decoder = TransformerDecoder(vocab_size, hidden_size, window_size, embed_size, embedding)
         self.encoder = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size, embedding=embedding, embed_size=embed_size)
+        # self.trainable_variables = self.decoder.trainable_variables + self.encoder.trainable_variables
         self.word2idx= word2idx
         self.loss_list = []
         self.accuracy_list = []

@@ -147,7 +147,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         if is_decoder:
             # context_attention = self.self_context_atten(context_sequence, context_sequence, in_attention_norm)
 
-            context_attention = self.self_context_atten(in_attention_norm, in_attention_norm,context_sequence )
+            context_attention = self.self_context_atten(in_attention_norm, in_attention_norm, context_sequence)
             context_attention = context_attention + in_attention_norm
             context_attention_norm = self.layer_norm(context_attention)
             ff_out = self.ff_layer(context_attention_norm)

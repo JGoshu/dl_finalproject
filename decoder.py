@@ -12,10 +12,9 @@ from encoder import TransformerEncoder
 # Define the function to load embeddings
 
 # Use the embedding layer in your Keras model
-class TransformerDecoder(tf.keras.Model):
-
+class TransformerDecoder(tf.keras.layers.Layer):
     def __init__(self, vocab_size, hidden_size, window_size, embed_size, embedding, **kwargs):
-        super().__init__(**kwargs)
+        super(TransformerDecoder, self).__init__(**kwargs)
         self.vocab_size  = vocab_size
         self.hidden_size = hidden_size
         self.window_size = window_size
@@ -24,10 +23,11 @@ class TransformerDecoder(tf.keras.Model):
             tf.keras.layers.Dense(self.hidden_size*2, activation="leaky_relu"),
             tf.keras.layers.Dense(self.hidden_size, activation="leaky_relu"),
         ])
+        #use pre-trained embedding!
         self.transformer_block = TransformerBlock(embed_size=embed_size, is_decoder=True)
-        self.pooling = tf.keras.layers.GlobalMaxPooling2D(input_shape=(400, 400, 300))
+        self.pooling = tf.keras.layers.GlobalMaxPooling2D(input_shape=(400, 400, 300)) #or alternative for dimensional reduction
         self.classifier = tf.keras.Sequential([
-            tf.keras.layers.Dense(7, "softmax"),
+            tf.keras.layers.Dense(7, "sigmoid"),
         ]) 
         
     def call(self, x, labels):

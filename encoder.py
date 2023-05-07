@@ -14,9 +14,9 @@ from transformer import *
 # Define the function to load embeddings
 
 # Use the embedding layer in your Keras model
-class TransformerEncoder(tf.keras.Model):
+class TransformerEncoder(tf.keras.layers.Layer):
     def __init__(self, vocab_size, hidden_size, window_size, embedding, embed_size, **kwargs):
-        super().__init__(**kwargs)
+        super(TransformerEncoder, self).__init__(**kwargs)
         self.vocab_size  = vocab_size
         self.hidden_size = hidden_size
         self.window_size = window_size
@@ -25,7 +25,7 @@ class TransformerEncoder(tf.keras.Model):
             input_dim=self.embedding_matrix.shape[0],
             output_dim=self.embedding_matrix.shape[1],
             weights=[self.embedding_matrix],
-            trainable=False
+            trainable=True
         )
         self.positional_embedding = TokenAndPositionEmbedding(self.embedding_layer, hp.maxlen, hp.vocab_size, hp.embed_size)
         self.transformerblock = TransformerBlock(embed_size=embed_size,  is_decoder=False)

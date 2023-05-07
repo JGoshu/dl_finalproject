@@ -16,11 +16,12 @@ def train(model, train_inputs, train_labels, padding_index):
             # mask = input != padding_index
             # input = tf.boolean_mask(input, mask)
             probs = model(input, labels)
-            print("PROBS: ", probs)
-            print("LABELS: ", labels)
+            # print("TRAINABLE WEIGHTS: " , model.trainable_weights)
             loss = model.sentiment_loss(probs[0], labels)
-        gradients = tape.gradient(loss, model.trainable_variables) 
-        model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        # temp = model.encoder.weights + model.decoder. 
+        # print("TEMP: " , temp)
+        gradients = tape.gradient(loss, model.trainable_weights) 
+        model.optimizer.apply_gradients(zip(gradients,model.trainable_weights))
         accuracy = model.accuracy(probs, labels)
         total_loss += loss
 
@@ -28,14 +29,10 @@ def test(model, test_inputs, test_labels, padding_index):
     for i in range(test_inputs.shape[0]):
         total_loss = total_seen = total_correct = 0
         input = test_inputs[i]
-        print("DECODER :", input)
+
         labels = test_labels[i]
-        print("decoder_labels: ", labels)
-        ## TODO
-        # mask = input != padding_index
-        # input = tf.boolean_mask(input, mask)
         probs = model(input)
-        
+       
         loss = model.sentiment_loss(probs, labels)
         accuracy = model.accuracy(probs, labels)
         ## Compute and report on aggregated statistics
@@ -47,10 +44,13 @@ def main():
     train_posts = tf.keras.preprocessing.sequence.pad_sequences(train_posts, maxlen=hp.maxlen)
     test_posts = tf.keras.preprocessing.sequence.pad_sequences(test_posts, maxlen=hp.maxlen)
     model = EmotionDetectionModel(vocab_size=hp.vocab_size, hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size, embedding=embedding, word2idx=word2idx)
-    # model.compile(
-    #     optimizer=tf.keras.optimizers.Adam(), 
-    #     loss=model.sentiment_loss,
-    #       metrics=model.accuracy)
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(), 
+        loss=model.sentiment_loss,
+          metrics=model.accuracy)
+    model.encoder.trainable = True
+    model.decoder.trainable = True
+    model.trainable = True
     parser = argparse.ArgumentParser(
     description="Let's analyze some sentiments!",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
