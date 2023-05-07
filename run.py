@@ -9,48 +9,40 @@ from encoder import TransformerEncoder
 # from plot import plot, plot_all_sentiments
 
 def train(model, train_inputs, train_labels, padding_index):
-    total_loss = total_seen = total_correct = 0  
     for i in range(train_inputs.shape[0]):
         input = train_inputs[i]
-        #should be encoder output.
-
-        print("DECODER :", input)
         labels = train_labels[i]
-        print("decoder_labels: ", labels)
-        ## TODO
         with tf.GradientTape () as tape:
-            mask = input != padding_index
-            input = tf.boolean_mask(input, mask)
-            probs = model(input)
+            # mask = input != padding_index
+            # input = tf.boolean_mask(input, mask)
+            probs = model(input, labels)
             loss = model.sentiment_loss(probs, labels)
         gradients = tape.gradient(loss, model.trainable_variables) 
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
         accuracy = model.accuracy(probs, labels)
-        ## Compute and report on aggregated statistics
         total_loss += loss
 
-        
-
-
-
 def test(model, test_inputs, test_labels, padding_index):
-    total_loss = total_seen = total_correct = 0
-    input = test_inputs[i]
-    print("DECODER :", input)
-    labels = test_labels[i]
-    print("decoder_labels: ", labels)
-    ## TODO
-    mask = input != padding_index
-    input = tf.boolean_mask(input, mask)
-    probs = model(input)
-    loss = model.sentiment_loss(probs, labels)
-    accuracy = model.accuracy(probs, labels)
-    ## Compute and report on aggregated statistics
+    for i in range(test_inputs.shape[0]):
+        total_loss = total_seen = total_correct = 0
+        input = test_inputs[i]
+        print("DECODER :", input)
+        labels = test_labels[i]
+        print("decoder_labels: ", labels)
+        ## TODO
+        # mask = input != padding_index
+        # input = tf.boolean_mask(input, mask)
+        probs = model(input)
+        loss = model.sentiment_loss(probs, labels)
+        accuracy = model.accuracy(probs, labels)
+        ## Compute and report on aggregated statistics
     total_loss += loss
 
 # Main for running the training and testing along with specifying arguments for the user
 def main():
     train_posts, val_posts, test_posts, train_emotions, val_emotions, test_emotions, embedding, word2idx = get_data()
+    train_posts = tf.keras.preprocessing.sequence.pad_sequences(train_posts, maxlen=hp.maxlen)
+    test_posts = tf.keras.preprocessing.sequence.pad_sequences(test_posts, maxlen=hp.maxlen)
     model = EmotionDetectionModel(vocab_size=hp.vocab_size, hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size, embedding=embedding, word2idx=word2idx)
     parser = argparse.ArgumentParser(
     description="Let's analyze some sentiments!",

@@ -33,7 +33,7 @@ def load_embedding():
             data_dict[parts[0]] = i
 
         # Return the embedding matrix
-        data_dict['<pad>'] = -1
+        data_dict['<pad>'] = 0 #may need to change
         return embedding_matrix, data_dict
 def preprocess_post(text):
     # tokenize the text
@@ -129,7 +129,6 @@ def get_data():
     val_posts = np.reshape(np.array(val_posts), (-1, 1))
     test_posts = np.reshape(np.array(test_posts), (-1, 1))
 
-    print(train_posts[0])
     
     train_emotions = np.array(train_emotions)
     val_emotions = np.array(val_emotions)
@@ -180,4 +179,4 @@ def get_data():
 
     return train_tokenized, val_tokenized, test_tokenized, train_emotions, val_emotions, test_emotions, embedding, word2idx
 
-get_data()
+

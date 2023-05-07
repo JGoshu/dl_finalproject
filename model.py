@@ -9,16 +9,18 @@ class EmotionDetectionModel(tf.keras.Model):
     def __init__(self, vocab_size, hidden_size, window_size, embed_size, embedding, word2idx, **kwargs):
         super().__init__(**kwargs)
         self.decoder = TransformerDecoder(vocab_size, hidden_size, window_size, embed_size, embedding)
-        self.encoder = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size, embedding=embedding)
+        self.encoder = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size, embedding=embedding, embed_size=embed_size)
         self.word2idx= word2idx
         self.loss_list = []
         self.accuracy_list = []
         self.final_loss = []
 
-    def call(self, inputs):
+    def call(self, inputs, labels):
         print("encoded_text: ", inputs)
-        encoded_text = self.encoder(inputs)
-        return self.decoder(encoded_text)  
+        encoded_text, embedded_inputs = self.encoder(inputs)
+        print("ENCODING: " , encoded_text)
+        probs = self.decoder(encoded_text, embedded_inputs)
+        return probs
 
     def compile(self, optimizer, loss, metrics):
         '''
