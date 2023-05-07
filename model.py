@@ -28,8 +28,7 @@ class EmotionDetectionModel(tf.keras.Model):
         '''
         self.optimizer = optimizer
         self.sentiment_loss = loss 
-        self.accuracy = metrics[0]
-    
+        self.accuracy = metrics
         
     def optimizer(self, learning_rate):
         return tf.keras.optimizers.Adam(learning_rate=learning_rate)
@@ -38,7 +37,7 @@ class EmotionDetectionModel(tf.keras.Model):
     def sentiment_loss(self, labels, predictions):
         """Loss function for sentiment analysis"""
         
-        return tf.keras.losses.sparse_categorical_crossentropy(labels, predictions)
+        return tf.keras.losses.categorical_crossentropy(labels, predictions)
 
     def summary_loss(self, labels, predictions, threshold, perplexity):
         """Loss function"""

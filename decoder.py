@@ -25,12 +25,19 @@ class TransformerDecoder(tf.keras.Model):
             tf.keras.layers.Dense(self.hidden_size, activation="leaky_relu"),
         ])
         self.transformer_block = TransformerBlock(embed_size=embed_size, is_decoder=True)
-        self.classifier = tf.keras.layers.Dense(7, "softmax")
+        self.pooling = tf.keras.layers.GlobalMaxPooling2D(input_shape=(400, 400, 300))
+        self.classifier = tf.keras.Sequential([
+            tf.keras.layers.Dense(7, "softmax"),
+        ]) 
         
     def call(self, x, labels):
         #NOTE: embed?
         x = self.transformer_block(x, context_sequence=tf.cast(labels, np.float32), is_decoder=True)
+        x = np.expand_dims(x, axis=0)
+        x= self.pooling(x)
+        print("X: ", x)
         x = self.classifier(x)
+        print("CLASSY X: ", x)
         return x
     
     def get_config(self):

@@ -16,7 +16,9 @@ def train(model, train_inputs, train_labels, padding_index):
             # mask = input != padding_index
             # input = tf.boolean_mask(input, mask)
             probs = model(input, labels)
-            loss = model.sentiment_loss(probs, labels)
+            print("PROBS: ", probs)
+            print("LABELS: ", labels)
+            loss = model.sentiment_loss(probs[0], labels)
         gradients = tape.gradient(loss, model.trainable_variables) 
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
         accuracy = model.accuracy(probs, labels)
@@ -33,6 +35,7 @@ def test(model, test_inputs, test_labels, padding_index):
         # mask = input != padding_index
         # input = tf.boolean_mask(input, mask)
         probs = model(input)
+        
         loss = model.sentiment_loss(probs, labels)
         accuracy = model.accuracy(probs, labels)
         ## Compute and report on aggregated statistics
@@ -44,6 +47,10 @@ def main():
     train_posts = tf.keras.preprocessing.sequence.pad_sequences(train_posts, maxlen=hp.maxlen)
     test_posts = tf.keras.preprocessing.sequence.pad_sequences(test_posts, maxlen=hp.maxlen)
     model = EmotionDetectionModel(vocab_size=hp.vocab_size, hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size, embedding=embedding, word2idx=word2idx)
+    # model.compile(
+    #     optimizer=tf.keras.optimizers.Adam(), 
+    #     loss=model.sentiment_loss,
+    #       metrics=model.accuracy)
     parser = argparse.ArgumentParser(
     description="Let's analyze some sentiments!",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)

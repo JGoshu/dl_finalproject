@@ -62,7 +62,6 @@ class AttentionHead(tf.keras.layers.Layer):
     def __init__(self, input_size, output_size, is_self_attention, is_decoder, **kwargs):
         super(AttentionHead, self).__init__(**kwargs)
         self.use_mask = is_self_attention
-
         # TODO:
         # Initialize the weight matrices for K, V, and Q.
         self.K = tf.Variable(tf.random.truncated_normal([input_size, output_size], stddev=0.1))
@@ -72,9 +71,7 @@ class AttentionHead(tf.keras.layers.Layer):
         # if is_decoder and not is_self_attention:
         #     self.Q = tf.Variable(tf.random.truncated_normal([7, 300], stddev=0.1))
         # else:
-        #     self.Q = tf.Variable(tf.random.truncated_normal([input_size, output_size], stddev=0.1))
-        
-     #    
+        #     self.Q = tf.Variable(tf.random.truncated_normal([input_size, output_size], stddev=0.1)) 
         self.attention_matrix = AttentionMatrix(use_mask=self.use_mask, is_decoder=is_decoder, is_self_attention=is_self_attention)
         # They should be able to multiply an input_size vector to produce an output_size vector
 
@@ -148,7 +145,9 @@ class TransformerBlock(tf.keras.layers.Layer):
         in_attention = in_attention + inputs
         in_attention_norm = self.layer_norm(in_attention)
         if is_decoder:
-            context_attention = self.self_context_atten(in_attention_norm, in_attention_norm, context_sequence)
+            # context_attention = self.self_context_atten(context_sequence, context_sequence, in_attention_norm)
+
+            context_attention = self.self_context_atten(in_attention_norm, in_attention_norm,context_sequence )
             context_attention = context_attention + in_attention_norm
             context_attention_norm = self.layer_norm(context_attention)
             ff_out = self.ff_layer(context_attention_norm)
