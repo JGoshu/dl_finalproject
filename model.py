@@ -8,7 +8,7 @@ from decoder import TransformerDecoder
 class EmotionDetectionModel(tf.keras.Model):
     def __init__(self, vocab_size, hidden_size, window_size, embed_size, embedding, word2idx, **kwargs):
         super( EmotionDetectionModel, self).__init__(**kwargs)
-        # self.decoder = TransformerDecoder(vocab_size, hidden_size, window_size, embed_size, embedding)
+        self.decoder = TransformerDecoder(vocab_size, hidden_size, window_size, embed_size, embedding)
         self.embedding_matrix = embedding
         self.embedding_layer = tf.keras.layers.Embedding(
             input_dim=self.embedding_matrix.shape[0],
@@ -16,9 +16,9 @@ class EmotionDetectionModel(tf.keras.Model):
             weights=[self.embedding_matrix],
             trainable=True
         )
-        self.dense1 = tf.keras.layers.Dense(hidden_size, activation="relu" )
+        # self.dense1 = tf.keras.layers.Dense(hidden_size, activation="relu" )
         self.dense2 = tf.keras.layers.Dense(7, activation= "sigmoid")
-        # self.encoder = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size, embedding=embedding, embed_size=embed_size)
+        self.encoder = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size, embedding=embedding, embed_size=embed_size)
         # self.trainable_variables = self.decoder.trainable_variables + self.encoder.trainable_variables
         self.word2idx= word2idx
         self.loss_list = []
@@ -28,12 +28,12 @@ class EmotionDetectionModel(tf.keras.Model):
     def call(self, inputs, labels):
         print("inputs: ", inputs)
         x = self.embedding_layer(inputs)
-        x = self.dense1(x)
-        x = self.dense2(x)
+        x, xe = self.encoder(x)
+        # x = self.dense2(x)
         # print("encoded_text: ", inputs)
         # encoded_text, embedded_inputs = self.encoder(inputs)
         # print("ENCODING: " , encoded_text)
-        # probs = self.decoder(encoded_text, embedded_inputs)
+        x = self.decoder(x, xe)
         return x
 
     def compile(self, optimizer, loss, metrics):

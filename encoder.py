@@ -27,7 +27,7 @@ class TransformerEncoder(tf.keras.layers.Layer):
             weights=[self.embedding_matrix],
             trainable=True
         )
-        self.positional_embedding = TokenAndPositionEmbedding(self.embedding_layer, hp.maxlen, hp.vocab_size, hp.embed_size)
+        self.positional_embedding = TokenAndPositionEmbedding(self.embedding_layer, hp.maxlen, vocab_size, hp.embed_size)
         self.transformerblock = TransformerBlock(embed_size=embed_size,  is_decoder=False)
     def call(self, x):
         # TODO:

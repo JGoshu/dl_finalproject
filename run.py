@@ -20,12 +20,14 @@ def train(model, train_inputs, train_labels, padding_index):
             # print("TRAINABLE WEIGHTS: " , model.trainable_weights)
             # print("WEIGHTS: " , model.weights)
             loss = model.sentiment_loss(probs[0], labels)
+            print(probs, labels)
         # temp = model.encoder.weights + model.decoder. 
-        # print("TEMP: " , temp)
         gradients = tape.gradient(loss, model.trainable_weights) 
         model.optimizer.apply_gradients(zip(gradients,model.trainable_weights))
+        print("yeeehaw!")
         accuracy = model.accuracy(probs, labels)
     total_loss += loss
+
 
 def test(model, test_inputs, test_labels, padding_index):
     total_loss = total_seen = total_correct = 0
@@ -47,7 +49,7 @@ def main():
     train_posts, val_posts, test_posts, train_emotions, val_emotions, test_emotions, embedding, word2idx = get_data()
     train_posts = tf.keras.preprocessing.sequence.pad_sequences(train_posts, maxlen=hp.maxlen)
     test_posts = tf.keras.preprocessing.sequence.pad_sequences(test_posts, maxlen=hp.maxlen)
-    model = EmotionDetectionModel(vocab_size=hp.vocab_size, hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size, embedding=embedding, word2idx=word2idx)
+    model = EmotionDetectionModel(vocab_size=len(word2idx), hidden_size=hp.hidden_size, window_size=hp.window_size, embed_size=hp.embed_size, embedding=embedding, word2idx=word2idx)
     model.compile(
         optimizer=tf.keras.optimizers.Adam(), 
         loss=model.sentiment_loss,
