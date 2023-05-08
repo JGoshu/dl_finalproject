@@ -145,7 +145,7 @@ def get_data():
                 new_words.append(word2idx[word])
             else:
                 word2idx[word] = vocab_size
-                new_words.append(vocab_size)
+                new_words.append(vocab_size-1)
                 vocab_size += 1
         train_tokenized[index] = new_words
 
@@ -158,7 +158,7 @@ def get_data():
                 new_words.append(word2idx[word])
             else:
                 word2idx[word] = vocab_size
-                new_words.append(vocab_size)
+                new_words.append(vocab_size-1)
                 vocab_size += 1
         val_tokenized[index] = new_words
 
@@ -171,7 +171,7 @@ def get_data():
                 new_words.append(word2idx[word])
             else:
                 word2idx[word] = vocab_size
-                new_words.append(vocab_size)
+                new_words.append(vocab_size-1)
                 vocab_size += 1   ####### TODO: REMOVE LATER OR TRY TRAINING EMBEDDING ########
         test_tokenized[index] = new_words
 

@@ -16,6 +16,6 @@ window_size = 400
 
 embed_size = 300
 
-vocab_size = 399999
+vocab_size = 399980
 num_heads = 2
 maxlen = 400
