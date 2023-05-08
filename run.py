@@ -71,7 +71,7 @@ def main():
 
     # test_inputs, test_labels = get_test_data()
 
-    for i in range(hp.num_epochs):
+    for i in range(hp.num_epochs): 
         print(f"EPOCH: {i}/{hp.num_epochs}")
         train(model, train_posts, train_emotions, model.word2idx['<pad>'])
         

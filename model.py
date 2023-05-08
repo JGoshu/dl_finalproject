@@ -28,13 +28,13 @@ class EmotionDetectionModel(tf.keras.Model):
         self.loss_list = []
         self.accuracy_list = []
         self.final_loss = []
-        self.dec_embedding = tf.keras.Sequential([
-            tf.keras.layers.Dense(hidden_size*2, activation="leaky_relu"),
-            tf.keras.layers.Dense(hidden_size, activation="leaky_relu"),
-        ])
+        # self.dec_embedding = tf.keras.Sequential([
+        #     tf.keras.layers.Dense(hidden_size*2, activation="leaky_relu"),
+        #     tf.keras.layers.Dense(hidden_size, activation="leaky_relu"),
+        # ])
         #use pre-trained embedding!?
         self.dec_transformer_block = TransformerBlock(embed_size=embed_size, is_decoder=True)
-        self.dec_positional_embedding = TokenAndPositionEmbedding(self.dec_embedding, hp.maxlen, vocab_size, hp.embed_size)
+        self.dec_positional_embedding = TokenAndPositionEmbedding(self.embedding_layer, hp.maxlen, vocab_size, hp.embed_size)
         self.dec_pooling = tf.keras.layers.GlobalMaxPooling2D(input_shape=(400, 400, 300)) #or alternative for dimensional reduction
         self.dec_classifier = tf.keras.Sequential([
             tf.keras.layers.Dense(7, "sigmoid"),
