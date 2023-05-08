@@ -17,14 +17,13 @@ def train(model, train_inputs, train_labels, padding_index):
             # mask = input != padding_index
             # input = tf.boolean_mask(input, mask)
             probs = model(input, labels)
-            # print("TRAINABLE WEIGHTS: " , model.trainable_weights)
-            # print("WEIGHTS: " , model.weights)
+           
             loss = model.sentiment_loss(probs[0], labels)
-            print(probs, labels)
+            
         # temp = model.encoder.weights + model.decoder. 
         gradients = tape.gradient(loss, model.trainable_weights) 
         model.optimizer.apply_gradients(zip(gradients,model.trainable_weights))
-        print("yeeehaw!")
+
         accuracy = model.accuracy(probs, labels)
     total_loss += loss
 

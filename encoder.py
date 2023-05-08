@@ -35,17 +35,10 @@ class TransformerEncoder(tf.keras.layers.Layer):
         # 2) Pass the captions through your positional encoding layer
         # 3) Pass the english embeddings and the image sequences to the decoder
         # 4) Apply dense layer(s) to the decoder out to generate logits
-        print("ENC x in: ", x)
+
         embedding = self.positional_embedding(x)
         x = self.transformerblock(embedding)
-        print("ENC x out: ", x)
+      
         return x, embedding
     
-    def get_config(self):
-        return {
-            "vocab_size": self.vocab_size,
-            "hidden_size": self.hidden_size,
-            "window_size": self.window_size,
-        }
-
-
+    

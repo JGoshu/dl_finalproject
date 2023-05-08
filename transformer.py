@@ -7,7 +7,7 @@ import warnings
 class AttentionMatrix(tf.keras.layers.Layer):
 
     def __init__(self, *args, use_mask=False, is_decoder=False, is_self_attention,**kwargs):
-        super().__init__(*args, **kwargs)
+        super(AttentionMatrix, self).__init__(*args, **kwargs)
         self.use_mask = use_mask
         self.is_decoder = is_decoder
         self.is_self_attention = is_self_attention
@@ -25,7 +25,7 @@ class AttentionMatrix(tf.keras.layers.Layer):
         K, Q = inputs
         window_size_queries = Q.get_shape()[0]  # window size of queries
         window_size_keys    = K.get_shape()[0]  # window size of keys
-        print("window_size_queries", window_size_queries)
+
         ## Fill triangle below diagonal of matrix with negative infinity and top part with 0.
         ## This helps to avoid over-contribution, since adjacency matrix is symmetric across diagonal. 
         ## Tile this upward to be compatible with addition against computed attention scores.
@@ -122,25 +122,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
     @tf.function
     def call(self, inputs, context_sequence=None, is_decoder=False):
-        """
-        This functions calls a transformer block.
-
-        TODO:
-        1) compute MASKED attention on the inputs
-        2) residual connection and layer normalization
-        3) computed UNMASKED attention using context
-        4) residual connection and layer normalization
-        5) feed forward layer
-        6) residual layer and layer normalization
-        7) return relu of tensor
-
-        NOTES: This article may be of great use:
-        https://www.tensorflow.org/text/tutorials/transformer#the_embedding_and_positional_encoding_layer
-
-        :param inputs: tensor of shape [BATCH_SIZE x INPUT_SEQ_LENGTH x EMBEDDING_SIZE ]
-        :param context_sequence: tensor of shape [BATCH_SIZE x CONTEXT_SEQ_LENGTH x EMBEDDING_SIZE ]
-        :return: tensor of shape [BATCH_SIZE x INPUT_SEQ_LENGTH x EMBEDDING_SIZE ]
-        """
+    
         in_attention = self.self_atten(inputs, inputs, inputs)
         in_attention = in_attention + inputs
         in_attention_norm = self.layer_norm(in_attention)

@@ -8,14 +8,14 @@ num_classes = 7
 
 learning_rate = 0.001
 
-batch_size = 100
+batch_size = 20
 
 hidden_size = 512
 
-window_size = 300
+window_size = 400
 
 embed_size = 300
 
-vocab_size = 399000
+vocab_size = 399900
 num_heads = 2
-maxlen = 300
+maxlen = 400
