@@ -15,26 +15,32 @@ from nltk.stem import PorterStemmer
 nltk.download('punkt')
 nltk.download('stopwords')
 
+
 # define the tokenizer, stop words, and stemmer
+
 tokenizer = nltk.RegexpTokenizer(r'\w+')
 stop_words = set(stopwords.words('english'))
 stemmer = PorterStemmer()
-def load_embedding():
+def load_embedding(vocab_size, new_words):
         data_dict = {}
         # Load the embedding file
-        with open('data/glove.6B.300d.txt', 'r', encoding='utf-8') as f:
+        with open('data/fake.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
-
         # Extract the embedding matrix
-        embedding_matrix = np.zeros((len(lines), 300))
+        embeddings = []
+        x = 0
         for i, line in enumerate(lines):
             parts = line.strip().split(' ')
-            embedding_matrix[i] = np.array(parts[1:], dtype=np.float32)
-            data_dict[parts[0]] = i
-
+            embeddings.append( np.array(parts[1:], dtype=np.float32))
+            data_dict[parts[0]] = x
+            x +=1
+        for word in new_words:
+            embeddings.append(tf.random.normal([300]))
+            x+=1
+        embedding_matrix = np.array(embeddings)
         # Return the embedding matrix
         data_dict['<pad>'] = 0 #may need to change
-        return embedding_matrix, data_dict
+        return embedding_matrix
 def preprocess_post(text):
     # tokenize the text
     tokens = tokenizer.tokenize(text)
@@ -131,50 +137,64 @@ def get_data():
     train_emotions = np.array(train_emotions)
     val_emotions = np.array(val_emotions)
     test_emotions = np.array(test_emotions)
-    embedding, word2idx = load_embedding()
-    vocab_size = hp.vocab_size
-    train_tokenized = np.zeros((train_posts.shape[0], hp.window_size + 1))
-    val_tokenized = np.zeros((train_posts.shape[0], hp.window_size + 1))
-    test_tokenized = np.zeros((train_posts.shape[0], hp.window_size + 1))
+    word2idx = {}
+    word2idx['<pad>'] = 0 
+    vocab_size = 0
+    words_to_be_embedded = []
+    train_tokenized = np.zeros((train_posts.shape[0], hp.maxlen + 1))
+    val_tokenized = np.zeros((train_posts.shape[0], hp.maxlen + 1))
+    test_tokenized = np.zeros((train_posts.shape[0], hp.maxlen + 1))
     for index, post in enumerate(train_posts):
         words = post[0].split()
-        words += (hp.window_size + 1 - len(words)) * ['<pad>']
+        words += (hp.maxlen + 1 - len(words)) * ['<pad>']
+        if len(words) > 101:
+            words = words[:101]
         new_words = []
         for i, word in enumerate(words):
             if word in word2idx:
                 new_words.append(word2idx[word])
+                words_to_be_embedded.append(word)
             else:
                 word2idx[word] = vocab_size
-                new_words.append(vocab_size-1)
+                new_words.append(vocab_size)
+                words_to_be_embedded.append(word)
                 vocab_size += 1
         train_tokenized[index] = new_words
 
     for index, post in enumerate(val_posts):
         words = post[0].split()
-        words += (hp.window_size + 1 - len(words)) * ['<pad>']
+        words += (hp.maxlen + 1 - len(words)) * ['<pad>']
+        if len(words) > 101:
+            words = words[:101]
         new_words = []
         for i, word in enumerate(words):
             if word in word2idx:
                 new_words.append(word2idx[word])
+                words_to_be_embedded.append(word)
             else:
                 word2idx[word] = vocab_size
-                new_words.append(vocab_size-1)
+                new_words.append(vocab_size)
+                words_to_be_embedded.append(word)
                 vocab_size += 1
         val_tokenized[index] = new_words
 
     for index, post in enumerate(test_posts):
         words = post[0].split()
-        words += (hp.window_size + 1 - len(words)) * ['<pad>']
+        words += (hp.maxlen + 1 - len(words)) * ['<pad>']
+        if len(words) > 101:
+            words = words[:101]
         new_words = []
         for i, word in enumerate(words):
             if word in word2idx:
                 new_words.append(word2idx[word])
+                words_to_be_embedded.append(word)
             else:
                 word2idx[word] = vocab_size
-                new_words.append(vocab_size-1)
-                vocab_size += 1   ####### TODO: REMOVE LATER OR TRY TRAINING EMBEDDING ########
+                new_words.append(vocab_size)
+                words_to_be_embedded.append(word)
+                vocab_size += 1 ####### TODO: REMOVE LATER OR TRY TRAINING EMBEDDING ########
         test_tokenized[index] = new_words
-
+    embedding = load_embedding(np.int64(vocab_size), new_words)
     return train_tokenized, val_tokenized, test_tokenized, train_emotions, val_emotions, test_emotions, embedding, word2idx
 
 

@@ -41,7 +41,7 @@ class EmotionDetectionModel(tf.keras.Model):
         ]) 
         self.dropout= tf.keras.layers.Dropout(0.5)
 
-    def call(self, x_in, labels):
+    def call(self, x_in):
         x = x_in
         # x = self.embedding_layer(inputs)
         # x = self.encoder(x)

@@ -16,7 +16,7 @@ def train(model, train_inputs, train_labels, padding_index):
         with tf.GradientTape () as tape:
             # mask = input != padding_index
             # input = tf.boolean_mask(input, mask)
-            probs = model(input, labels)
+            probs = model(input)
            
             loss = model.sentiment_loss(probs[0], labels)
             
@@ -33,12 +33,11 @@ def test(model, test_inputs, test_labels, padding_index):
     for i in range(test_inputs.shape[0]):
         
         input = test_inputs[i]
-
         labels = test_labels[i]
         probs = model(input)
        
-        loss = model.sentiment_loss(probs, labels)
-        accuracy = model.accuracy(probs, labels)
+        loss = model.sentiment_loss(probs[0], labels)
+        accuracy = model.accuracy(probs[0], labels)
         print("TEST ACCURACY: ", accuracy)
         ## Compute and report on aggregated statistics
     total_loss += loss
@@ -79,4 +78,6 @@ def main():
     # plot(model.accuracy_list, "ACCURACY", f"{args.model}_ACCURACY")
     print(f"FINAL TESTING SCORE: {test(model, test_posts, test_emotions, model.word2idx['<pad>'])}")
     
+    model.save('saved_model/my_model')
+    model.save('my_model') 
 main()
