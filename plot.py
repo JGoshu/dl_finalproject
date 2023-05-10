@@ -15,4 +15,5 @@ def plot_all_sentiments(values, save_fig):
         # assumes that values will be a 2d matrix, where each row represents a sentiment
         plt.plot(values[i])
     plt.savefig(f"{save_fig}.png")
+    plt.legend(["Anger", "Anticipation", "Joy", "Trust", "Fear", "Sadness", "Disgust"])
     plt.show()

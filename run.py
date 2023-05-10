@@ -1,11 +1,11 @@
 import tensorflow as tf
 import hyperparameters as hp
-import numpy as np
+# import numpy as np
 import argparse
 from preprocessing import get_data
 from model import EmotionDetectionModel
-from decoder import TransformerDecoder
-from encoder import TransformerEncoder
+# from decoder import TransformerDecoder
+# from encoder import TransformerEncoder
 # from plot import plot, plot_all_sentiments
 
 def train(model, train_inputs, train_labels, padding_index):
@@ -51,7 +51,7 @@ def main():
     model.compile(
         optimizer=tf.keras.optimizers.Adam(), 
         loss=model.sentiment_loss,
-          metrics=model.accuracy)
+        metrics=model.accuracy)
     # model.encoder.trainable = True
     # model.decoder.trainable = True
     # model.trainable = True

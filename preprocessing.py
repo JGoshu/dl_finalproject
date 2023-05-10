@@ -31,7 +31,7 @@ def load_embedding(vocab_size, new_words):
         x = 0
         for i, line in enumerate(lines):
             parts = line.strip().split(' ')
-            embeddings.append( np.array(parts[1:], dtype=np.float32))
+            embeddings.append(np.array(parts[1:]))
             data_dict[parts[0]] = x
             x +=1
         for word in new_words:
@@ -40,6 +40,7 @@ def load_embedding(vocab_size, new_words):
         embedding_matrix = np.array(embeddings)
         # Return the embedding matrix
         data_dict['<pad>'] = 0 #may need to change
+        embeddings_matrix = tf.cast(embeddings, tf.float32)
         return embedding_matrix
 def preprocess_post(text):
     # tokenize the text
@@ -132,7 +133,6 @@ def get_data():
     train_posts = np.reshape(np.array(train_posts), (-1, 1))
     val_posts = np.reshape(np.array(val_posts), (-1, 1))
     test_posts = np.reshape(np.array(test_posts), (-1, 1))
-
     
     train_emotions = np.array(train_emotions)
     val_emotions = np.array(val_emotions)
@@ -142,8 +142,8 @@ def get_data():
     vocab_size = 0
     words_to_be_embedded = []
     train_tokenized = np.zeros((train_posts.shape[0], hp.maxlen + 1))
-    val_tokenized = np.zeros((train_posts.shape[0], hp.maxlen + 1))
-    test_tokenized = np.zeros((train_posts.shape[0], hp.maxlen + 1))
+    val_tokenized = np.zeros((val_posts.shape[0], hp.maxlen + 1))
+    test_tokenized = np.zeros((test_posts.shape[0], hp.maxlen + 1))
     for index, post in enumerate(train_posts):
         words = post[0].split()
         words += (hp.maxlen + 1 - len(words)) * ['<pad>']
@@ -195,6 +195,5 @@ def get_data():
                 vocab_size += 1 ####### TODO: REMOVE LATER OR TRY TRAINING EMBEDDING ########
         test_tokenized[index] = new_words
     embedding = load_embedding(np.int64(vocab_size), new_words)
+
     return train_tokenized, val_tokenized, test_tokenized, train_emotions, val_emotions, test_emotions, embedding, word2idx
-
-

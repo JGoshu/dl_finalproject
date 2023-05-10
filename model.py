@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
-from encoder import TransformerEncoder
-from decoder import TransformerDecoder
+# from encoder import TransformerEncoder
+# from decoder import TransformerDecoder
 from transformer import *
 
 # Model call function 
@@ -17,8 +17,8 @@ class EmotionDetectionModel(tf.keras.Model):
             weights=[self.embedding_matrix],
             trainable=True
         )
-        self.dense1 = tf.keras.layers.Dense(hidden_size, activation="relu" )
-        self.dense2 = tf.keras.layers.Dense(7, activation= "sigmoid")
+        # self.dense1 = tf.keras.layers.Dense(hidden_size, activation="relu" )
+        # self.dense2 = tf.keras.layers.Dense(7, activation= "sigmoid")
         # self.encoder = TransformerEncoder(vocab_size=vocab_size, hidden_size=hidden_size, window_size=window_size, embedding=embedding, embed_size=embed_size)
         # self.trainable_variables = self.decoder.trainable_variables + self.encoder.trainable_variables
         
@@ -52,7 +52,7 @@ class EmotionDetectionModel(tf.keras.Model):
         # x = self.dense2(x)
         # x = tf.reduce_mean(x, axis=0)
         x = self.dec_transformer_block(x, context_sequence=tf.cast(x_emb, np.float32), is_decoder=True)
-        x = np.expand_dims(x, axis=0)
+        x = tf.expand_dims(x, axis=0)
         x = self.dec_pooling(x)
         x = self.dec_classifier(x)
 
@@ -106,4 +106,5 @@ class EmotionDetectionModel(tf.keras.Model):
 
         correct_classes = tf.argmax(logits, axis=-1) == labels
         acc = tf.reduce_mean(tf.cast(correct_classes, tf.float32))
+        acc.numpy()
         return acc
