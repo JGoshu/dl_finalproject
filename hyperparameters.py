@@ -15,6 +15,9 @@ hidden_size = 512
 window_size = 100
 
 embed_size = 300
+
 vocab_size = 11163
+
 num_heads = 2
+
 maxlen = 100

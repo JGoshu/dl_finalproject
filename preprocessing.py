@@ -60,8 +60,8 @@ def preprocess_post(text):
 def get_data():
 
     train_data_filepath = "data/train_anonymized_with_posts.json"
-    val_data_filepath = "data/test_anonymized_with_posts.json"
-    test_data_filepath = "data/val_anonymized_with_posts.json"
+    val_data_filepath = "data/val_anonymized_with_posts.json"
+    test_data_filepath = "data/test_anonymized_with_posts.json"
 
     labels_idx = {"anger" : 0, 
                   "anticipation" : 1, 
@@ -195,5 +195,9 @@ def get_data():
                 vocab_size += 1 ####### TODO: REMOVE LATER OR TRY TRAINING EMBEDDING ########
         test_tokenized[index] = new_words
     embedding = load_embedding(np.int64(vocab_size), new_words)
-
+    print(train_tokenized.shape)
+    print(val_tokenized.shape)
+    print(test_tokenized.shape)
     return train_tokenized, val_tokenized, test_tokenized, train_emotions, val_emotions, test_emotions, embedding, word2idx
+
+get_data()

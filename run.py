@@ -1,12 +1,12 @@
 import tensorflow as tf
 import hyperparameters as hp
-# import numpy as np
+import numpy as np
 import argparse
 from preprocessing import get_data
 from model import EmotionDetectionModel
 # from decoder import TransformerDecoder
 # from encoder import TransformerEncoder
-# from plot import plot, plot_all_sentiments
+from plot import plot, plot_all_sentiments
 
 def train(model, train_inputs, train_labels, padding_index):
     total_loss = total_seen = total_correct = 0
@@ -24,8 +24,9 @@ def train(model, train_inputs, train_labels, padding_index):
         gradients = tape.gradient(loss, model.trainable_weights) 
         model.optimizer.apply_gradients(zip(gradients,model.trainable_weights))
 
-        accuracy = model.accuracy(probs, labels)
+    accuracy = model.accuracy(probs, labels)
     total_loss += loss
+    print("LOSS: ", total_loss)
 
 
 def test(model, test_inputs, test_labels, padding_index):
@@ -38,9 +39,11 @@ def test(model, test_inputs, test_labels, padding_index):
        
         loss = model.sentiment_loss(probs[0], labels)
         accuracy = model.accuracy(probs[0], labels)
-        print("TEST ACCURACY: ", accuracy)
         ## Compute and report on aggregated statistics
-    total_loss += loss
+        model.accuracy_list.append(accuracy)
+        model.loss_list[i] = loss
+        print("TEST ACCURACY: ", accuracy)
+    return np.mean(model.accuracy_list)
 
 # Main for running the training and testing along with specifying arguments for the user
 def main():
@@ -67,15 +70,12 @@ def main():
     if args.learning_rate: 
         hp.learning_rate = tf.cast(args.learning_rate, tf.float32)
 
-
-    # test_inputs, test_labels = get_test_data()
-
     for i in range(hp.num_epochs): 
         print(f"EPOCH: {i}/{hp.num_epochs}")
         train(model, train_posts, train_emotions, model.word2idx['<pad>'])
         
-    # plot_all_sentiments(model.loss_list, "LOSS", f"{args.model}_LOSS")
-    # plot(model.accuracy_list, "ACCURACY", f"{args.model}_ACCURACY")
+    plot_all_sentiments(model.loss_list)
+    plot(model.accuracy_list, "ACCURACY")
     print(f"FINAL TESTING SCORE: {test(model, test_posts, test_emotions, model.word2idx['<pad>'])}")
     
     model.save('saved_model/my_model')

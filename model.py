@@ -25,9 +25,8 @@ class EmotionDetectionModel(tf.keras.Model):
         self.enc_positional_embedding = TokenAndPositionEmbedding(self.embedding_layer, hp.maxlen, vocab_size, hp.embed_size)
         self.enc_transformerblock = TransformerBlock(embed_size=embed_size,  is_decoder=False)
         self.word2idx= word2idx
-        self.loss_list = []
+        self.loss_list = np.zeros((398, 7))
         self.accuracy_list = []
-        self.final_loss = []
         # self.dec_embedding = tf.keras.Sequential([
         #     tf.keras.layers.Dense(hidden_size*2, activation="leaky_relu"),
         #     tf.keras.layers.Dense(hidden_size, activation="leaky_relu"),
