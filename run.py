@@ -9,7 +9,7 @@ from model import EmotionDetectionModel
 from plot import plot, plot_all_sentiments
 
 def train(model, train_inputs, train_labels, padding_index):
-    total_loss = total_seen = total_correct = 0
+    total_loss= 0
     for i in range(train_inputs.shape[0]):
         input = train_inputs[i]
         labels = train_labels[i]
@@ -23,14 +23,11 @@ def train(model, train_inputs, train_labels, padding_index):
         # temp = model.encoder.weights + model.decoder. 
         gradients = tape.gradient(loss, model.trainable_weights) 
         model.optimizer.apply_gradients(zip(gradients,model.trainable_weights))
-
-    accuracy = model.accuracy(probs, labels)
     total_loss += loss
     print("LOSS: ", total_loss)
 
 
 def test(model, test_inputs, test_labels, padding_index):
-    total_loss = total_seen = total_correct = 0
     for i in range(test_inputs.shape[0]):
         
         input = test_inputs[i]
@@ -55,9 +52,6 @@ def main():
         optimizer=tf.keras.optimizers.Adam(), 
         loss=model.sentiment_loss,
         metrics=model.accuracy)
-    # model.encoder.trainable = True
-    # model.decoder.trainable = True
-    # model.trainable = True
     parser = argparse.ArgumentParser(
     description="Let's analyze some sentiments!",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
