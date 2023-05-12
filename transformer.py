@@ -38,12 +38,12 @@ class AttentionMatrix(tf.keras.layers.Layer):
         #       - if use_mask==True, then make sure to add the attention mask before softmax
         # 2) return the attention matrix
         attention_weights = None
-        if self.is_decoder:
-            attention_weights = tf.matmul(Q, tf.transpose(K, perm=[0, 2, 1])) / tf.math.sqrt(tf.cast(window_size_keys, tf.float32))
-        else:
-            attention_weights = tf.matmul(Q, tf.transpose(K, perm=[1,0])) / tf.math.sqrt(tf.cast(window_size_keys, tf.float32))
-        if self.use_mask:
-            attention_weights = attention_weights + atten_mask
+        # if self.is_decoder:
+        attention_weights = tf.matmul(Q, tf.transpose(K, perm=[0, 2, 1])) / tf.math.sqrt(tf.cast(window_size_keys, tf.float32))
+        # else:
+        #     attention_weights = tf.matmul(Q, tf.transpose(K, perm=[1,0])) / tf.math.sqrt(tf.cast(window_size_keys, tf.float32))
+        # if self.use_mask:
+        #     attention_weights = attention_weights + atten_mask
         return tf.nn.softmax(attention_weights)
         # Check lecture slides for how to compute self-attention
         # Remember:
@@ -98,7 +98,9 @@ class AttentionHead(tf.keras.layers.Layer):
         K = tf.tensordot(inputs_for_keys, self.K, axes=1)
         V = tf.tensordot(inputs_for_values, self.V, axes=1)
         Q = tf.tensordot(inputs_for_queries, self.Q, axes=1)
-     
+        print("K           : ", K)
+        print("V           : ", V)
+        print("Q           : ", Q)
         attention_weights = self.attention_matrix((K, Q))
        
         attention = tf.matmul(attention_weights, V)
@@ -114,7 +116,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
         self.ff_layer = tf.keras.Sequential([
             tf.keras.layers.Dense(embed_size, activation='leaky_relu'),
-            tf.keras.layers.Dense(embed_size)
+            tf.keras.layers.Dense(embed_size, activation='leaky_relu')
         ])
         self.self_atten         = AttentionHead(embed_size, embed_size, True, is_decoder) 
         self.self_context_atten = AttentionHead(embed_size, embed_size, False, is_decoder)
@@ -122,13 +124,12 @@ class TransformerBlock(tf.keras.layers.Layer):
 
     @tf.function
     def call(self, inputs, context_sequence=None, is_decoder=False):
-    
+        print("context: ", context_sequence)
         in_attention = self.self_atten(inputs, inputs, inputs)
         in_attention = in_attention + inputs
         in_attention_norm = self.layer_norm(in_attention)
         if is_decoder:
             # context_attention = self.self_context_atten(context_sequence, context_sequence, in_attention_norm)
-
             context_attention = self.self_context_atten(in_attention_norm, in_attention_norm, context_sequence)
             context_attention = context_attention + in_attention_norm
             context_attention_norm = self.layer_norm(context_attention)

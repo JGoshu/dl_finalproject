@@ -160,6 +160,7 @@ def get_data():
                 words_to_be_embedded.append(word)
                 vocab_size += 1
         train_tokenized[index] = new_words
+        
 
     for index, post in enumerate(val_posts):
         words = post[0].split()
@@ -195,9 +196,7 @@ def get_data():
                 vocab_size += 1 ####### TODO: REMOVE LATER OR TRY TRAINING EMBEDDING ########
         test_tokenized[index] = new_words
     embedding = load_embedding(np.int64(vocab_size), new_words)
-    print(train_tokenized.shape)
-    print(val_tokenized.shape)
-    print(test_tokenized.shape)
+    
     return train_tokenized, val_tokenized, test_tokenized, train_emotions, val_emotions, test_emotions, embedding, word2idx
 
 get_data()

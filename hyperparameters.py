@@ -8,7 +8,7 @@ num_classes = 7
 
 learning_rate = 0.001
 
-batch_size = 20
+batch_size = 40
 
 hidden_size = 512
 

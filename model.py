@@ -24,23 +24,28 @@ class EmotionDetectionModel(tf.keras.Model):
         self.loss_list = np.zeros((398, 7))
         self.accuracy_list = []
         self.dec_transformer_block = TransformerBlock(embed_size=embed_size, is_decoder=True)
-        self.dec_pooling = tf.keras.layers.GlobalMaxPooling2D(input_shape=(400, 400, 300)) #or alternative for dimensional reduction
+        # self.dec_pooling = tf.keras.layers.GlobalMaxPooling2D(input_shape=(20, 100, 300)) #or alternative for dimensional reduction
         self.dec_classifier = tf.keras.Sequential([
-            tf.keras.layers.Dense(hp.hidden_size, "leaky_relu"),
+            tf.keras.layers.Dense(hidden_size, "leaky_relu"),
             tf.keras.layers.Dense(7, "sigmoid"),
         ]) 
-        self.dropout= tf.keras.layers.Dropout(0.5)
+        self.dropout= tf.keras.layers.Dropout(0.3)
     def call(self, x_in):
         x = x_in
         x_emb= self.enc_positional_embedding(x)
         x = self.dropout(x)
         x = self.enc_transformerblock(x_emb)
         x = self.dec_transformer_block(x, context_sequence=tf.cast(x_emb, np.float32), is_decoder=True)
-        x = tf.expand_dims(x, axis=0)
-        x = self.dec_pooling(x)
+        # x = tf.expand_dims(x, axis=0)
+        # x = self.dec_pooling(x)
+        x = tf.reduce_mean(x, axis=1)
         x = self.dec_classifier(x)
         return x
-
+    def threshold(self, x):
+        if x > 0.5:
+            return 1
+        else:
+            return 0
     def compile(self, optimizer, loss, metrics):
         '''
         Create a facade to mimic normal keras fit routine
@@ -55,7 +60,7 @@ class EmotionDetectionModel(tf.keras.Model):
     # Model loss function 
     def sentiment_loss(self, labels, predictions):
         """Loss function for sentiment analysis"""
-        
+            # make it for the right axis
         return tf.keras.losses.categorical_crossentropy(labels, predictions)
 
     def summary_loss(self, labels, predictions, threshold, perplexity):
@@ -69,7 +74,7 @@ class EmotionDetectionModel(tf.keras.Model):
                 other_emotions += i
         loss = other_emotions + perplexity - target_emotion
         return loss
-
+    
     def accuracy(self, logits, labels):
         """Computes accuracy and returns a float representing the average accuracy"""
         
@@ -82,8 +87,14 @@ class EmotionDetectionModel(tf.keras.Model):
 
         # avg = num_correct / len(labels)
         # return avg
+        my_result = np.vectorize(self.threshold)(logits)
+        
 
-        correct_classes = tf.argmax(logits, axis=-1) == labels
-        acc = tf.reduce_mean(tf.cast(correct_classes, tf.float32))
-        acc.numpy()
-        return acc
+        # Compute the binary accuracy
+        
+        correct_classes = my_result == labels
+        print("CORRECT: ", correct_classes)
+        binary_acc = tf.keras.metrics.binary_accuracy(labels, my_result)
+        # acc = tf.reduce_mean(tf.cast(correct_classes, tf.float32))
+        # acc.numpy()
+        return binary_acc
